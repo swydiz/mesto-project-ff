@@ -1,8 +1,10 @@
 import "./pages/index.css";
 import { initialCards } from "./components/cards.js";
-import { createCard, likeClick, deleteCard } from "./components/card.js";
-import { openPopup, closePopup, escapePress } from "./components/modal.js";
+import { createCard, likeClick } from "./components/card.js";
+import { openPopup, closePopup, closePopupBuOverlay, deleteCard } from "./components/modal.js";
+import avatarUrl from './images/avatar.jpg';
 
+document.querySelector('.profile__image').style.backgroundImage = `url(${avatarUrl})`;
 const profileTitle = document.querySelector(".profile__title");
 const profileSubtitle = document.querySelector(".profile__description");
 const placesList = document.querySelector(".places__list");
@@ -35,7 +37,7 @@ function openImagePopup(imageSrc, imageName) {
 
 function renderCard(cardData) {
     console.log("renderCard is being called");
-  placesList.append(createCard(cardData, likeClick, openImagePopup));
+  placesList.append(createCard(cardData, likeClick, openImagePopup, deleteCard));
 }
 
 function editFormSubmit(evt) {
@@ -51,7 +53,7 @@ function addFormSubmit(evt) {
     name: placeInput.value,
     link: linkInput.value,
   };
-  placesList.prepend(createCard(newCardData, likeClick, openImagePopup));
+  placesList.prepend(createCard(newCardData, likeClick, openImagePopup, deleteCard));
   closePopup(cardPopup);
   cardForm.reset();
 }
@@ -68,11 +70,9 @@ editCloseButton.addEventListener("click", function () {
   closePopup(editPopup);
 });
 
-editPopup.addEventListener("click", function (evt) {
-  if (evt.target === evt.currentTarget) {
-    closePopup(editPopup);
-  }
-});
+editPopup.addEventListener("click", closePopupBuOverlay);
+cardPopup.addEventListener("click", closePopupBuOverlay);
+popupTypeImage.addEventListener("click", closePopupBuOverlay);
 
 addButton.addEventListener("click", function () {
   openPopup(cardPopup);

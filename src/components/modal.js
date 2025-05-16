@@ -8,8 +8,18 @@ export function closePopup(popup) {
   document.removeEventListener("keydown", escapePress);
 }
 
-export function escapePress(evt) {
+function escapePress(evt) {
   if (evt.key === "Escape") {
     closePopup(document.querySelector(".popup_is-opened"));
   }
+}
+
+export function closePopupBuOverlay(evt) {
+    if (evt.target === evt.currentTarget) {
+        closePopup(evt.currentTarget);
+    }
+}
+
+export function deleteCard(cardElement) {
+  cardElement.remove();
 }

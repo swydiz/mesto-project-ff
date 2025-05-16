@@ -2,11 +2,7 @@ export function likeClick(likeButton) {
   likeButton.classList.toggle("card__like-button_is-active");
 }
 
-export function deleteCard(cardElement) {
-  cardElement.remove();
-}
-
-export function createCard(cardData, likeHandler, imageClickHandler) {
+export function createCard(cardData, likeHandler, imageClickHandler, deleteCardCallback) {
   const cardTemplate = document.querySelector("#card-template");
   const cardElement = cardTemplate.content.cloneNode(true).firstElementChild;
   const cardImage = cardElement.querySelector(".card__image");
@@ -24,7 +20,7 @@ export function createCard(cardData, likeHandler, imageClickHandler) {
   cardImage.addEventListener("click", function () {
     imageClickHandler(cardData.link, cardData.name);
   });
-  deleteButton.addEventListener("click", () => deleteCard(cardElement));
+  deleteButton.addEventListener("click", () => deleteCardCallback(cardElement));
 
   return cardElement;
 }
