@@ -9,8 +9,9 @@
   justify-content: center;
   background: #000;
   border-radius: 2px;
-  border: none;
   transition: visibility 0s, background 0.3s;
+  outline: 1px solid #fff;
+  border: none;
   margin-top: 48px;
 }
 
@@ -24,4 +25,13 @@
     font-size: 14px;
     line-height: 17px;
   }
+}
+
+.popup__button_disabled {
+    filter: invert(100%);
+    opacity: 0.2;
+}
+
+.popup__button_disabled:hover {
+  background-color: transparent;
 }

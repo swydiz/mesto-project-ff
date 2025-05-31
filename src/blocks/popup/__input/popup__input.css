@@ -10,6 +10,12 @@
   margin-bottom: 10px;
 }
 
+
+.form-container {
+  position: relative;
+  margin-bottom: 28px;
+}
+
 .popup__input:last-of-type {
   margin-bottom: 0;
 }
@@ -19,4 +25,25 @@
     font-size: 12px;
     line-height: 15px;
   }
+}
+
+.form__input-error {
+  position: absolute; 
+  top: 100%; 
+  left: 0;
+  color: #F00;
+  font-size: 12px;
+  text-align: left;
+  width: 100%;
+  display: block; 
+  z-index: 1;
+}
+
+
+.popup__input_invalid {
+  border-bottom: 1px solid #F00; 
+}
+
+.form__input-error:empty {
+    min-height: 0;
 }

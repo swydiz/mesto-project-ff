@@ -15,11 +15,8 @@ function escapePress(evt) {
 }
 
 export function closePopupBuOverlay(evt) {
-    if (evt.target === evt.currentTarget) {
-        closePopup(evt.currentTarget);
-    }
+  if (evt.target === evt.currentTarget) {
+    closePopup(evt.target);
+  }
 }
 
-export function deleteCard(cardElement) {
-  cardElement.remove();
-}
