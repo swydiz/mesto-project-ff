@@ -1,5 +1,7 @@
 import "./pages/index.css";
-import { createCard } from "./components/card.js";
+import { createCard,
+         likeHandler
+ } from "./components/card.js";
 import {
   openPopup,
   closePopup,
@@ -12,10 +14,10 @@ import {
   updateUserInfo,
   addCard,
   deleteCard,
-  likeCard,
-  unlikeCard,
   updateAvatar,
 } from "./api.js";
+
+let userId = null; 
 
 const validationConfig = {
   formSelector: ".popup__form",
@@ -37,6 +39,7 @@ const editForm = document.forms["edit-profile"];
 const nameInput = editForm.elements.name;
 const jobInput = editForm.elements.description;
 const editCloseButton = editPopup.querySelector(".popup__close");
+const editButtonElement = editForm.querySelector(".popup__button");
 
 const addButton = document.querySelector(".profile__add-button");
 const cardPopup = document.querySelector(".popup_type_new-card");
@@ -44,6 +47,7 @@ const cardForm = document.querySelector(".popup_type_new-card .popup__form ");
 const placeInput = cardForm.querySelector('[name="place-name"]');
 const linkInput = cardForm.querySelector('[name="link"]');
 const cardCloseButton = cardPopup.querySelector(".popup__close");
+const cardButtonElement = cardForm.querySelector(".popup__button");
 
 const popupTypeImage = document.querySelector(".popup_type_image");
 const imagePopup = popupTypeImage.querySelector(".popup__image");
@@ -60,15 +64,6 @@ const avatarCloseButton = avatarPopup.querySelector(
   ".popup__close_avatar-edit"
 );
 
-let currentUser = null;
-
-const setUser = (userData) => {
-  currentUser = userData;
-};
-
-const getUser = () => {
-  return currentUser;
-};
 
 function openImagePopup(imageSrc, imageName) {
   imagePopup.src = imageSrc;
@@ -97,21 +92,14 @@ function deleteCardCallback(cardId, cardElement) {
     });
 }
 
-function likeHandler(likeButton, cardData, likeCountElement) {
-  const isLiked = likeButton.classList.contains("card__like-button_is-active");
-  const cardId = cardData._id;
-
-  const likePromise = isLiked ? unlikeCard(cardId) : likeCard(cardId);
-
-  likePromise
-    .then((updatedCard) => {
-      likeButton.classList.toggle("card__like-button_is-active");
-      likeCountElement.textContent = updatedCard.likes.length;
-      cardData.likes = updatedCard.likes;
-    })
-    .catch((error) => {
-      console.error("Ошибка при лайке:", error);
-    });
+function renderLoading(button, isLoading, initialText = "Сохранить") {
+  if (isLoading) {
+    button.textContent = "Сохранение...";
+    button.disabled = true;
+  } else {
+    button.textContent = initialText;
+    button.disabled = false;
+  }
 }
 
 function renderCard(cardData, userId) {
@@ -133,10 +121,7 @@ function editFormSubmit(evt) {
   const newName = nameInput.value;
   const newAbout = jobInput.value;
 
-  const initialButtonText =
-    editForm.querySelector(".popup__button").textContent;
-  editForm.querySelector(".popup__button").textContent = "Сохранение...";
-  editForm.querySelector(".popup__button").disabled = true;
+  renderLoading(editButtonElement, true);
 
   updateUserInfo(newName, newAbout)
     .then((response) => {
@@ -147,8 +132,7 @@ function editFormSubmit(evt) {
       console.error("Ошибка при обновлении профиля:", error);
     })
     .finally(() => {
-      editForm.querySelector(".popup__button").textContent = initialButtonText;
-      editForm.querySelector(".popup__button").disabled = false;
+      renderLoading(editButtonElement, false, 'Сохранить');
     });
 }
 
@@ -159,11 +143,7 @@ function addFormSubmit(evt) {
     link: linkInput.value,
   };
 
-  const userId = getUser()._id;
-  const initialButtonText =
-    cardForm.querySelector(".popup__button").textContent;
-  cardForm.querySelector(".popup__button").textContent = "Сохранение...";
-  cardForm.querySelector(".popup__button").disabled = true;
+  renderLoading(cardButtonElement, true);
 
   addCard(newCardData.name, newCardData.link)
     .then((newCard) => {
@@ -178,14 +158,12 @@ function addFormSubmit(evt) {
       );
       closePopup(cardPopup);
       cardForm.reset();
-      clearValidation(cardForm, validationConfig);
     })
     .catch((error) => {
       console.error("Ошибка при добавлении карточки:", error);
     })
     .finally(() => {
-      cardForm.querySelector(".popup__button").textContent = initialButtonText;
-      cardForm.querySelector(".popup__button").disabled = false;
+      renderLoading(cardButtonElement, false, 'Создать');
     });
 }
 
@@ -201,8 +179,7 @@ avatarPopup.addEventListener("mousedown", closePopupBuOverlay);
 avatarForm.addEventListener("submit", (evt) => {
   evt.preventDefault();
   const avatarUrl = avatarLinkInput.value;
-  avatarSubmitButton.textContent = "Сохранение...";
-  avatarSubmitButton.disabled = true;
+  renderLoading(avatarSubmitButton, true);
 
   updateAvatar(avatarUrl)
     .then(() => {
@@ -213,17 +190,13 @@ avatarForm.addEventListener("submit", (evt) => {
       console.error("Ошибка обновления аватара:", err);
     })
     .finally(() => {
-      avatarSubmitButton.textContent = "Сохранить";
-      avatarSubmitButton.disabled = false;
+      renderLoading(avatarSubmitButton, false, "Сохранить");
     });
 });
 
 editButton.addEventListener("click", function () {
-  const user = getUser();
-  if (user) {
-    nameInput.value = user.name;
-    jobInput.value = user.about;
-  }
+  nameInput.value = profileTitle.textContent;
+  jobInput.value = profileSubtitle.textContent;
   clearValidation(editForm, validationConfig);
   openPopup(editPopup);
 });
@@ -255,14 +228,12 @@ const setProfileInfo = (userData) => {
   profileTitle.textContent = userData.name;
   profileSubtitle.textContent = userData.about;
   profileImage.style.backgroundImage = `url(${userData.avatar})`;
-  setUser(userData);
 };
 
 async function initializePage() {
   try {
     const userData = await getUserInfo();
     const userId = userData._id;
-    setUser(userData);
     setProfileInfo(userData);
 
     const initialCards = await getInitialCards();

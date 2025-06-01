@@ -1,3 +1,5 @@
+import { likeCard, unlikeCard } from '../api';
+
 export function createCard(cardData, likeHandler, imageClickHandler, deleteCardCallback, userId) {
   const cardTemplate = document.querySelector("#card-template");
   const cardElement = cardTemplate.content.cloneNode(true).firstElementChild;
@@ -41,3 +43,21 @@ export function createCard(cardData, likeHandler, imageClickHandler, deleteCardC
     likeCountElement.textContent = likeCount;
   }
 }
+
+export function likeHandler(likeButton, cardData, likeCountElement) {
+  const isLiked = likeButton.classList.contains("card__like-button_is-active");
+  const cardId = cardData._id;
+
+  const likePromise = isLiked ? unlikeCard(cardId) : likeCard(cardId);
+
+  likePromise
+    .then((updatedCard) => {
+      likeButton.classList.toggle("card__like-button_is-active");
+      likeCountElement.textContent = updatedCard.likes.length;
+      cardData.likes = updatedCard.likes;
+    })
+    .catch((error) => {
+      console.error("Ошибка при лайке:", error);
+    });
+}
+

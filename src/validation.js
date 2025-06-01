@@ -66,7 +66,6 @@ const enableValidation = (config) => {
   const formList = Array.from(document.querySelectorAll(config.formSelector));
 
   formList.forEach((formElement) => {
-    formElement.setAttribute('novalidate', '');
     setEventListeners(formElement, config);
   });
 };
